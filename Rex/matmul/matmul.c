@@ -36,10 +36,31 @@ void matmul_simd(float **A, float **B, float **C) {
     for (i = 0; i < N; i++) {
         for (j = 0; j < N; j++) {
             temp = 0;
-            #pragma omp simd
+            #pragma omp simd reduction(+:temp) simdlen(8)
             for (k = 0; k < N; k++) {
                 temp = temp + A[i][k] * B[j][k];
             }
+            C[i][j] = temp;
+        }
+    }
+}
+
+void matmul_simd(float **A, float **B, float **C) {
+    int i,j,k;
+    float temp;
+
+    for (i = 0; i < N; i++) {
+        for (j = 0; j < N; j++) {
+            temp = 0;
+            temp4reduction[N/8];
+            for (k = 0; k < N; k+=8) {
+                temp = temp + A[i][k] * B[j][k]; /vectorize
+                temp2reduction[k/8] = temp;
+            }
+            
+            reduction of temp4reduction array to temp; need another loop
+            
+            
             C[i][j] = temp;
         }
     }
